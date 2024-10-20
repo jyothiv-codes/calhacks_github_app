@@ -2,8 +2,8 @@ import streamlit as st
 import asyncio
 import os
 import streamlit as st  # Streamlit framework
-from authenticator import Authenticator
-from connection import Connection
+from src.authenticator import Authenticator
+from src.connection import Connection
 from dotenv import load_dotenv
 from pyaudio import PyAudio, paInt16
 
