@@ -14,13 +14,15 @@ load_dotenv()
 
 class ChatBot:
     #Load the models
-    def __init__(self):
+    def __init__(self, pdf_path):
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro")
         self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        self.pdf_path = pdf_path
 
     def load_pdf(self):
+        persist_directory = "./chroma_db"
         #Load the PDF and create chunks
-        loader = PyPDFLoader("audio_responses_cleaned.pdf")
+        loader = PyPDFLoader(self.pdf_path)
         text_splitter = CharacterTextSplitter(
             separator="\n",
             chunk_size=1000,
@@ -31,7 +33,7 @@ class ChatBot:
         pages = loader.load_and_split(text_splitter)
 
         #Turn the chunks into embeddings and store them in Chroma
-        vectordb=Chroma.from_documents(pages,self.embeddings)
+        vectordb=Chroma.from_documents(pages,self.embeddings, persist_directory=persist_directory)
 
         #Configure Chroma as a retriever with top_k=1
         self.retriever = vectordb.as_retriever(search_kwargs={"k": 5})
@@ -79,7 +81,7 @@ class ChatBot:
         self.retrieval_chain = create_retrieval_chain(self.retriever, self.combine_docs_chain)
         # st.session_state['chain'] = self.retrieval_chain
 
-    def ask_anything(self):
+    def ask_anything_continuous(self):
 
         self.load_pdf()
 
@@ -97,6 +99,17 @@ class ChatBot:
             response= self.retrieval_chain.invoke({"input":i})
             print(response["answer"])
 
+    def ask_anything(self, input):
+        template = """
+            You are a helpful AI assistant.
+            The provided context contains emotions of user in a conversation. Analyse it to provide details.
+            context: {context}
+            input: {input}
+            answer:
+            """
+        self.create_chain(template)
+        # print(self.retrieval_chain)
+        response = self.retrieval_chain.invoke({'input':input})
+        return response['answer']
 
-# cb = ChatBot()
-# cb.sendlinks()
+

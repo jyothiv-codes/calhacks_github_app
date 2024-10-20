@@ -1,16 +1,6 @@
 from fpdf import FPDF
 import re
 
-# class PDF(FPDF):
-#     def __init__(self):
-#         super().__init__()
-#         # Add Arial Unicode font during initialization
-#         self.add_font("ArialUnicode", "", "/Library/Fonts/Arial Unicode.ttf")
-
-#     def header(self):
-#         # Set the font for the header after it's added
-#         self.set_font("ArialUnicode", "", 12)
-#         self.cell(0, 10, "Text to PDF Conversion", 0, 1, "C")
 
 class FileProcessing:
 
@@ -32,8 +22,8 @@ class FileProcessing:
             file.write(cleaned_content)  # Write the modified content to a new file
         print(f"Cleaned content saved to {self.inter_file}")
 
-        with open(self.input_file, 'w') as file:
-            pass
+        # with open(self.input_file, 'w') as file:
+        #     pass
 
     def txt_to_pdf(self):
         
@@ -52,12 +42,15 @@ class FileProcessing:
         self.pdf.output(self.pdf_file)
         print(f"PDF saved at: {self.pdf_file}")
 
-        with open(self.inter_file, 'w') as file:
-            pass
+        # with open(self.inter_file, 'w') as file:
+        #     pass
+
 
     def processFile(self):
         self.clean_conversation_file()
         self.txt_to_pdf()
 
-fp = FileProcessing('logs/emotion_logs')
-fp.processFile()
+        return self.pdf_file
+
+# fp = FileProcessing('logs/emotion_logs')
+# fp.processFile()
