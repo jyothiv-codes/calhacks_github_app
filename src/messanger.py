@@ -9,6 +9,8 @@ class Messanger:
 		self.client = Client(account_sid, auth_token)
 
 	def sendMessage(self, msg, recipient):
+		if len(msg)>1500:
+			msg = msg[:1500]
 		self.client.messages.create(
 		from_='whatsapp:+14155238886',
 		body=msg,

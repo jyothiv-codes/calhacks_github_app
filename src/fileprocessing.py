@@ -22,8 +22,8 @@ class FileProcessing:
             file.write(cleaned_content)  # Write the modified content to a new file
         print(f"Cleaned content saved to {self.inter_file}")
 
-        # with open(self.input_file, 'w') as file:
-        #     pass
+        with open(self.input_file, 'w') as file:
+            pass
 
     def txt_to_pdf(self):
         
@@ -42,8 +42,8 @@ class FileProcessing:
         self.pdf.output(self.pdf_file)
         print(f"PDF saved at: {self.pdf_file}")
 
-        # with open(self.inter_file, 'w') as file:
-        #     pass
+        with open(self.inter_file, 'w') as file:
+            pass
 
 
     def processFile(self):

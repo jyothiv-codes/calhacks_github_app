@@ -93,7 +93,7 @@ class Connection:
             Exception: If any error occurs while receiving or processing audio data.
         """
         # Open the log file to store audio response metadata
-        with open("audio_responses_log.txt", "a") as log_file:
+        with open("logs/emotion_logs.txt", "a") as log_file:
             try:
                 async for message in socket:
                     try:
