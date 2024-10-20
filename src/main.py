@@ -30,7 +30,7 @@ st.markdown(
 )
 
 # Streamlit Title
-st.title("Relaximind")
+st.title("Hi! I'm Chillbert")
 
 # Audio format and parameters
 FORMAT = paInt16
