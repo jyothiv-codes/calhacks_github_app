@@ -34,5 +34,5 @@ class Messages:
 		self.sendMessage(msg, os.environ['TWILIO_RECIPIENT'])
 
 
-m = Messages()
-m.sendHelpfulLinks()
+# m = Messages()
+# m.sendHelpfulLinks()
