@@ -105,11 +105,10 @@ def get_access_token() -> str:
     load_dotenv()
 
     # Retrieve API key and Secret key from environment variables
-    #HUME_API_KEY = os.getenv("HUME_API_KEY")
-    #HUME_SECRET_KEY = os.getenv("HUME_SECRET_KEY")
-    HUME_CONFIG_ID="9a7e6382-efba-4cff-9dd2-1d16eceefce2"
-    HUME_API_KEY="g9YCR9LZyFnRlAPuiVrjn0AO3GUGJUXdhftMq2zQDMFVOA6G"
-    HUME_SECRET_KEY="ibojNQZAAo756z1rvxBGUS3YGtU4nWvopMh6BjQFLyWEaW3YWA4NIGZQMAgD4gbv"
+    HUME_API_KEY = os.getenv("HUME_API_KEY")
+    HUME_SECRET_KEY = os.getenv("HUME_SECRET_KEY")
+    HUME_CONFIG_ID=os.getenv("HUME_CONFIG_ID")
+   
 
     if HUME_API_KEY is None or HUME_SECRET_KEY is None:
         st.error("HUME_API_KEY and HUME_SECRET_KEY must be set in environment variables.")
