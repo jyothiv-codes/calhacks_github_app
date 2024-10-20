@@ -1,7 +1,7 @@
 import openai
 
 # Set your OpenAI API key
-openai.api_key = "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"
+
 from openai import OpenAI
 
 # Sample content to include in the system prompt
