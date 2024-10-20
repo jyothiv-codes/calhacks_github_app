@@ -1,12 +1,14 @@
 import streamlit as st
 import asyncio
 import os
-import streamlit as st  # Streamlit framework
 from src.authenticator import Authenticator
 from src.connection import Connection
+from src.analyse_chat import AnalyseChat
 from dotenv import load_dotenv
 from pyaudio import PyAudio, paInt16
 
+
+load_dotenv()
 
 # Audio format and parameters
 FORMAT = paInt16
@@ -75,7 +77,6 @@ async def main():
 
 
 def get_access_token() -> str:
-    load_dotenv()
 
     # Retrieve API key and Secret key from environment variables
     HUME_API_KEY = os.getenv("HUME_API_KEY")
@@ -88,6 +89,7 @@ def get_access_token() -> str:
 
     authenticator = Authenticator(HUME_API_KEY, HUME_SECRET_KEY)
     return authenticator.fetch_access_token()
+
 def chillbert_response():
     #return "Hello! I'm Chillbert, how can I help you today?"
     """ = st.session_state.loop
@@ -172,6 +174,19 @@ if page == "Start Conversation":
             loop = st.session_state.loop
             st.session_state.task = loop.create_task(main())
             loop.run_until_complete(st.session_state.task)
+        if st.button('Stop Conversation'):
+            ac = AnalyseChat()
+            ac.setup()
+            st.session_state['ac'] = ac
+            print("AC UPDATED")
+            if st.session_state.task is not None and not st.session_state.task.done():
+                st.session_state.task.cancel()  # Cancel the WebSocket connection task
+                try:
+                    loop.run_until_complete(st.session_state.task)  # Ensure it's fully canceled
+                except asyncio.CancelledError:
+                    st.write("Connection closed successfully.")
+                
+            
         st.markdown('</div>', unsafe_allow_html=True)
 
 # Second Page: For Practitioners
@@ -180,6 +195,13 @@ if page == "For Practitioners":
     
     # Layout with two columns
     col1, col2 = st.columns(2)
+
+    if 'ac' not in st.session_state:
+        ac = AnalyseChat()
+        ac.setup()
+        st.session_state['ac'] = ac
+    else:
+        ac = st.session_state['ac']
     
     with col1:
         # Apply background color to the whole column without affecting the image
@@ -191,11 +213,21 @@ if page == "For Practitioners":
         st.markdown('</div>', unsafe_allow_html=True)
         
     with col2:
+        
+        
         # Create a centered container for the question and button
         st.markdown('<div class="centered-text">', unsafe_allow_html=True)
+
+        # if st.button("Analyse Data"):
+        #     ac = AnalyseChat()
+        #     ac.setup()
+        #     st.session_state['ac'] = ac
+        # st.write('### Summary of the Convo')
+        # st.write(ac.askChatbot('Summarize the convo in 3 lines'))
+
         st.write("### Ask a Question to Chillbert")
         question = st.text_input("Enter your question here")
         if st.button("Submit"):
-            response = chillbert_response()  # Replace with llm_response(question)
+            response = ac.askChatbot(question)  # Replace with llm_response(question)
             st.write(response)
         st.markdown('</div>', unsafe_allow_html=True)
