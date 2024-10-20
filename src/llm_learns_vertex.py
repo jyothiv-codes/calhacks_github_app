@@ -1,4 +1,3 @@
-GOOGLE_API_KEY="AIzaSyAKyYk0por1sePrHL2rZg2GPBV8ojuKGuo"
 import streamlit as st
 #Gen AI code 
 import markdown
