@@ -4,6 +4,7 @@ import asyncio
 import base64
 import json
 import tempfile
+import time
 import logging
 import io
 import wave
@@ -83,40 +84,57 @@ class Connection:
     @classmethod
     async def _receive_audio_data(cls, socket):
         """
-        Receive and process audio data from the WebSocket server.
-
+        Receive and process audio data from the WebSocket server, and log the responses.
+        
         Args:
             socket (WebSocketClientProtocol): The WebSocket connection.
 
         Raises:
             Exception: If any error occurs while receiving or processing audio data.
         """
-        try:
-            async for message in socket:
-                try:
-                    # Attempt to parse the JSON message
-                    json_message = json.loads(message)
-                    print("Received JSON message:", json_message)
+        # Open the log file to store audio response metadata
+        with open("audio_responses_log.txt", "a") as log_file:
+            try:
+                async for message in socket:
+                    try:
+                        # Attempt to parse the JSON message
+                        json_message = json.loads(message)
+                        print("Received JSON message:", json_message)
 
-                    # Check if the message type is 'audio_output'
-                    if json_message.get("type") == "audio_output":
-                        # Decode the base64 audio data
-                        audio_data = base64.b64decode(json_message["data"])
+                        # Log the message type and timestamp
+                        log_file.write(f"{time.time()} - Received message: {json_message}\n")
+                        log_file.flush()  # Ensure immediate write to the file
 
-                        # Write the decoded audio data to a temporary file and play it
-                        with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as tmpfile:
-                            tmpfile.write(audio_data)
-                            tmpfile.flush()  # Ensure all data is written to disk
-                            playsound(tmpfile.name)
-                            print("Audio played")
+                        # Check if the message type is 'audio_output'
+                        if json_message.get("type") == "audio_output":
+                            # Decode the base64 audio data
+                            audio_data = base64.b64decode(json_message["data"])
 
-                except ValueError as e:
-                    print(f"Failed to parse JSON, error: {e}")
-                except KeyError as e:
-                    print(f"Key error in JSON data: {e}")
+                            # Write the decoded audio data to a temporary file and play it
+                            with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as tmpfile:
+                                tmpfile.write(audio_data)
+                                tmpfile.flush()  # Ensure all data is written to disk
+                                playsound(tmpfile.name)
+                                print("Audio played")
 
-        except Exception as e:
-            print(f"An error occurred while receiving audio: {e}")
+                                # Log that the audio was played
+                                log_file.write(f"{time.time()} - Audio played successfully\n")
+                                log_file.flush()
+
+                    except ValueError as e:
+                        print(f"Failed to parse JSON, error: {e}")
+                        log_file.write(f"{time.time()} - JSON parsing error: {e}\n")
+                        log_file.flush()
+
+                    except KeyError as e:
+                        print(f"Key error in JSON data: {e}")
+                        log_file.write(f"{time.time()} - Key error: {e}\n")
+                        log_file.flush()
+
+            except Exception as e:
+                print(f"An error occurred while receiving audio: {e}")
+                log_file.write(f"{time.time()} - Error: {e}\n")
+                log_file.flush()
 
     @classmethod
     async def _read_audio_stream_non_blocking(cls, audio_stream, chunk_size):
