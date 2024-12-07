@@ -11,11 +11,30 @@ load_dotenv()
 st.sidebar.image("ChillbertLogo-removebg-preview.png", use_column_width=True)
 # page = st.sidebar.radio("Navigate", ["Start Conversation", "For Practitioners"])
 
-# # Page navigation logic
-# if page == "Start Conversation":
-#     start_conversation.render_page()
-# elif page == "For Practitioners":
-#     practitioner_dashboard.render_page()
+USERNAME = "admin"
+PASSWORD = "pass123"
+
+# # Initialize session state for login
+# if "user" not in st.session_state:
+#     st.session_state.user = False
+
+# Login Page
+if "user" not in st.session_state:
+    st.title("Login to Chillbert")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    
+    if st.button("Login"):
+        if username == USERNAME and password == PASSWORD:
+            st.session_state.user = username
+            st.success("Login successful!")
+            # st.experimental_rerun()  # Refresh the app to show the main page
+        else:
+            st.error("Invalid username or password.")
+else:
+    st.title(f"Hello {st.session_state.user}! Start a Conversation or Analyse Chat")
+    if st.button("Logout"):
+        del st.session_state["user"]
 
 # Footer
 st.markdown('<div class="footer">', unsafe_allow_html=True)

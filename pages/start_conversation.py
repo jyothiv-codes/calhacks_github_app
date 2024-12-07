@@ -61,34 +61,37 @@ async def main():
         pyaudio.terminate()
 
 
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown('<div class="col1-background"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="image-container">', unsafe_allow_html=True)
-    st.markdown("![chillbert.gif](https://cdn.dribbble.com/users/7421625/screenshots/18722183/media/57f4bd5aea84c23e226069f65e417704.gif)")
-        
-with col2:
-    loop = st.session_state.loop
-    st.markdown('<h4>Your emotional sidekick with cool vibes!</h4>', unsafe_allow_html=True)
-    if st.button("Say Hello"):
-        st.session_state.task = loop.create_task(main())
-        loop.run_until_complete(st.session_state.task)
-    if st.button("Say Bye"):
-        ac = AnalyseChat()
-        ac.setup()
-        st.session_state['ac'] = ac
-        print("AC UPDATED")
-        try:
-            if st.session_state.task is not None and not st.session_state.task.done():
-                st.session_state.task.cancel()  # Cancel the WebSocket connection task
-                try:
-                    loop.run_until_complete(st.session_state.task)  # Ensure it's fully canceled
-                except asyncio.CancelledError:
-                    print("Connection closed successfully.")
-        # st.write(response)
-        except BaseException as e:
-            print(e)
-    st.markdown('</div>', unsafe_allow_html=True)
+if "user" not in st.session_state:
+    st.error("Please Login to continue")
+else:
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown('<div class="col1-background"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="image-container">', unsafe_allow_html=True)
+        st.markdown("![chillbert.gif](https://cdn.dribbble.com/users/7421625/screenshots/18722183/media/57f4bd5aea84c23e226069f65e417704.gif)")
+            
+    with col2:
+        loop = st.session_state.loop
+        st.markdown('<h4>Your emotional sidekick with cool vibes!</h4>', unsafe_allow_html=True)
+        if st.button("Say Hello"):
+            st.session_state.task = loop.create_task(main())
+            loop.run_until_complete(st.session_state.task)
+        if st.button("Say Bye"):
+            ac = AnalyseChat()
+            ac.setup()
+            st.session_state['ac'] = ac
+            print("AC UPDATED")
+            try:
+                if st.session_state.task is not None and not st.session_state.task.done():
+                    st.session_state.task.cancel()  # Cancel the WebSocket connection task
+                    try:
+                        loop.run_until_complete(st.session_state.task)  # Ensure it's fully canceled
+                    except asyncio.CancelledError:
+                        print("Connection closed successfully.")
+            # st.write(response)
+            except BaseException as e:
+                print(e)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # Sidebar navigation
 st.sidebar.image("ChillbertLogo-removebg-preview.png", use_column_width=True)
