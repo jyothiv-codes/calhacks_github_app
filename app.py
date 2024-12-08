@@ -8,7 +8,7 @@ load_dotenv()
 
 
 # Sidebar navigation
-st.sidebar.image("ChillbertLogo-removebg-preview.png", use_column_width=True)
+st.sidebar.image("ChillbertLogo-removebg-preview.png", use_container_width=True)
 # page = st.sidebar.radio("Navigate", ["Start Conversation", "For Practitioners"])
 
 USERNAME = "admin"

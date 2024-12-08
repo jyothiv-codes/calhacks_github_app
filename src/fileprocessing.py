@@ -1,5 +1,6 @@
 from fpdf import FPDF
 import re
+from datetime import datetime
 
 
 class FileProcessing:
@@ -7,7 +8,7 @@ class FileProcessing:
     def __init__(self, input_file):
         self.input_file=f'{input_file}.txt'
         self.inter_file=f'{input_file}_cleaned.txt'
-        self.pdf_file =f'{input_file}.pdf'
+        self.pdf_file =f'logs/{datetime.now()}.pdf'
         self.pdf = FPDF()
 
     def clean_conversation_file(self):

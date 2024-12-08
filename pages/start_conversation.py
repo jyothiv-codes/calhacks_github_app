@@ -77,10 +77,10 @@ else:
             st.session_state.task = loop.create_task(main())
             loop.run_until_complete(st.session_state.task)
         if st.button("Say Bye"):
-            ac = AnalyseChat()
-            ac.setup()
-            st.session_state['ac'] = ac
-            print("AC UPDATED")
+            ac = AnalyseChat(st.session_state['user'])
+            ac.store_ac()
+            # st.session_state['ac'] = ac
+            # print("AC UPDATED")
             try:
                 if st.session_state.task is not None and not st.session_state.task.done():
                     st.session_state.task.cancel()  # Cancel the WebSocket connection task
@@ -94,7 +94,7 @@ else:
         st.markdown('</div>', unsafe_allow_html=True)
 
 # Sidebar navigation
-st.sidebar.image("ChillbertLogo-removebg-preview.png", use_column_width=True)
+st.sidebar.image("ChillbertLogo-removebg-preview.png", use_container_width=True)
 # page = st.sidebar.radio("Navigate", ["Start Conversation", "For Practitioners"])
 
 # # Page navigation logic

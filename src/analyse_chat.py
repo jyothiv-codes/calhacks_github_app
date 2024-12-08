@@ -11,31 +11,30 @@ load_dotenv()
 
 class AnalyseChat:
 
-    def __init__(self):
+    def __init__(self, user):
         self.fp = FileProcessing('logs/emotion_logs')
         self.m = Messanger()
         self.setup_complete=False
+        self.user = user
+        self.cb = ChatBot(self.user)
 
-    def setup(self):
-
+    def store_ac(self):
 
         print('Setting up Chat Analysis')
         output_file = self.fp.processFile()
-        self.cb = ChatBot(output_file)
-
-        summary = self.cb.summarize()
-        links = self.cb.getlinks(summary)
+        summary = self.cb.summarize(output_file)
         self.sendChatSummary(summary)
+        links = self.cb.getlinks(summary)
         self.sendHelpfulLinks(links)
         print('sent messages')
         # self.cb.ask_anything_continuous()
 
     def sendChatSummary(self, summary_message):
-        msg = f'Your patient XYZ recently spoke to me. Here is the summary of our conversation. \n{summary_message}'
+        msg = f'Your patient {self.user} recently spoke to me. Here is the summary of our conversation. \n{summary_message}'
         self.m.sendMessage(msg, os.environ['TWILIO_RECIPIENT'])
 
     def sendHelpfulLinks(self, link_message):
-        msg = f'I really enjoyed our converation today. Based on our chat, here are a few helpful links for you!\n{link_message}'
+        msg = f'I really enjoyed our converation today {self.user}. Based on our chat, here are a few helpful links for you!\n{link_message}'
         self.m.sendMessage(msg, os.environ['TWILIO_RECIPIENT'])
 
     def askChatbot(self, question):
