@@ -8,17 +8,20 @@ from langchain.chains import create_retrieval_chain, LLMChain
 from langchain_chroma import Chroma
 from dotenv import load_dotenv
 from chromadb import HttpClient
+import os
 # from datetime import datetime
 
 load_dotenv()
 
+CHROMA_HOST = os.getenv("CHROMA_HOST")
+CHROMA_PORT = os.getenv("CHROMA_PORT", 8000)
 
 class ChatBot:
     #Load the models
     def __init__(self, user):
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro")
         self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-        self.chroma_client = HttpClient(host='localhost', port=8000)
+        self.chroma_client = HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
         self.collection_name = user
         self.collection = self.chroma_client.get_or_create_collection(self.collection_name)
         print(self.chroma_client.heartbeat())
