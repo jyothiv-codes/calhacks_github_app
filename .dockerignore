@@ -1,0 +1,20 @@
+# Exclude Environments
+.env
+.venv/
+
+# Exclude cache files
+
+__pycache__/
+*.pyc
+*.pyo
+
+# Exclude unnecessary directories
+.git/
+.dockerignore
+
+# Exclude temporary files
+*.log
+*.tmp
+
+# Exclude IDE/editor configuration files
+.vscode/
