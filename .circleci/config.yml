@@ -1,0 +1,26 @@
+version: 2.1
+
+# Define jobs
+jobs:
+  build:
+    docker:
+      - image: circleci/node:14  # Replace with the required image
+    steps:
+      - checkout  # Checks out your code
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - run:
+          name: Run Tests
+          command: npm test
+
+# Define workflows and specify branch filters
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - external-vector-store  # Replace with your branch name
