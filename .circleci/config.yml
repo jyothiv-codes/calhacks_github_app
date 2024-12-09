@@ -1,20 +1,20 @@
 version: 2.1
 
 jobs:
-  test:
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt
-      - run:
-          name: Skip Tests (No tests defined yet)
-          command: echo "Skipping tests because none are defined."
-      - run:
-          name: Run linting
-          command: flake8 app.py
+  steps:
+    - checkout
+    - run:
+      name: Install dependencies
+      command: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - run:
+      name: Skip Tests (No tests defined yet)
+      command: echo "Skipping tests because none are defined."
+    - run:
+      name: Run linting
+      command: flake8 app.py
+    
 
 
 workflows:
