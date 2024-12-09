@@ -57,6 +57,7 @@ class ApplicationBundler:
         shutil.copy2(".env", self.app_dir)
         shutil.copy2("chillbert.gif", self.app_dir / "assets")
         shutil.copy2("ChillbertLogo-removebg-preview.png", self.app_dir)
+        shutil.copy2("ChillbertLogo-removebg-preview.png", self.app_dir / "assets")
         #shutil.copytree("pages", self.app_dir)
         for file_name in os.listdir("pages"):
             full_file_name = os.path.join("pages", file_name)
