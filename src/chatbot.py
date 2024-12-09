@@ -24,6 +24,9 @@ class ChatBot:
     def __init__(self, user):
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro")
         self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        print(f'{CHROMA_HOST=}')
+        print(f'{CHROMA_CLIENT_AUTH_CREDENTIALS=}')
+        print(f'{CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=}')
         self.chroma_client = chromadb.HttpClient(
             host=CHROMA_HOST,
             port=CHROMA_PORT,
@@ -166,7 +169,7 @@ class ChatBot:
         return existing_ids
 
 
-# cb = ChatBot('admin')
+# cb = ChatBot('user1')
 # print(cb.summarize('logs/emotion_logs.pdf'))
 # print(cb.ask_anything('How are the users emotions?'))
 # print(cb.test_chroma())
