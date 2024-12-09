@@ -1,26 +1,22 @@
 version: 2.1
 
-# Define jobs
 jobs:
-  build:
-    docker:
-      - image: circleci/node:18.18  # Use a Node.js Docker image
+  test:
     steps:
-      - checkout  # Check out the code from your repository
+      - checkout
       - run:
-          name: Install Dependencies
-          command: npm install  # Install Node.js dependencies
-      - run:
-          name: Lint Code with ESLint
-          command: npx eslint .  # Run ESLint on all files in the repository
-      - run:
-          name: Format Check with Prettier
-          command: npx prettier --check .  # Check code formatting
+          name: Install dependencies
+          command: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
       - run:
           name: Skip Tests (No tests defined yet)
           command: echo "Skipping tests because none are defined."
+      - run:
+          name: Run linting
+          command: flake8 app.py
 
-# Define workflows
+
 workflows:
   version: 2
   build-and-test:
