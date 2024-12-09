@@ -66,3 +66,18 @@ GOOGLE_API_KEY="<GOOGLE API KEY>"
 ```bash
 streamlit run chillbert.py
 ```
+
+## For EC2
+```
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+docker --version
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+docker-compose --version
+git clone -b external-vector-store https://github.com/jyothiv-codes/calhacks_github_app.git
+
+sudo usermod -aG docker $USER
+```

@@ -6,22 +6,34 @@ from langchain_text_splitters import CharacterTextSplitter
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain, LLMChain
 from langchain_chroma import Chroma
+from chromadb.config import Settings
 from dotenv import load_dotenv
-from chromadb import HttpClient
+import chromadb
 import os
 # from datetime import datetime
 
-load_dotenv()
+load_dotenv(override=True)
 
 CHROMA_HOST = os.getenv("CHROMA_HOST")
 CHROMA_PORT = os.getenv("CHROMA_PORT", 8000)
+CHROMA_CLIENT_AUTH_CREDENTIALS = os.getenv("CHROMA_CLIENT_AUTH_CREDENTIALS")
+CHROMA_AUTH_TOKEN_TRANSPORT_HEADER = os.getenv("CHROMA_AUTH_TOKEN_TRANSPORT_HEADER")
 
 class ChatBot:
     #Load the models
     def __init__(self, user):
         self.llm = ChatGoogleGenerativeAI(model="gemini-pro")
         self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
-        self.chroma_client = HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+        self.chroma_client = chromadb.HttpClient(
+            host=CHROMA_HOST,
+            port=CHROMA_PORT,
+            settings=Settings(
+                chroma_client_auth_provider="chromadb.auth.token_authn.TokenAuthClientProvider",
+                chroma_auth_token_transport_header=CHROMA_AUTH_TOKEN_TRANSPORT_HEADER,
+                chroma_client_auth_credentials=CHROMA_CLIENT_AUTH_CREDENTIALS,
+            )
+        )
+        # self.chroma_client = HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
         self.collection_name = user
         self.collection = self.chroma_client.get_or_create_collection(self.collection_name)
         print(self.chroma_client.heartbeat())
@@ -154,7 +166,7 @@ class ChatBot:
         return existing_ids
 
 
-# cb = ChatBot('user1')
-# print(cb.summarize('logs/emotion.pdf'))
-# cb.ask_anything_continuous()
+# cb = ChatBot('admin')
+# print(cb.summarize('logs/emotion_logs.pdf'))
+# print(cb.ask_anything('How are the users emotions?'))
 # print(cb.test_chroma())
