@@ -18,3 +18,5 @@ twilio
 langchain_chroma
 fpdf
 streamlit
+boto3
+botocore
