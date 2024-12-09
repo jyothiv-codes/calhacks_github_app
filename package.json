@@ -1,0 +1,12 @@
+{
+  "name": "calhacks_github_app",
+  "version": "1.0.0",
+  "description": "<div align=\"center\">   <!-- <img src=\"https://storage.googleapis.com/hume-public-logos/hume/hume-banner.png\"> -->   <h1>CHILLBERT : Your emotional sidekick with all the cool vibes!</h1> </div>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
