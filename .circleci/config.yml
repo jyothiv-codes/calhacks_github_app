@@ -11,6 +11,12 @@ jobs:
           name: Install Dependencies
           command: npm install  # Install Node.js dependencies
       - run:
+          name: Lint Code with ESLint
+          command: npx eslint .  # Run ESLint on all files in the repository
+      - run:
+          name: Format Check with Prettier
+          command: npx prettier --check .  # Check code formatting
+      - run:
           name: Skip Tests (No tests defined yet)
           command: echo "Skipping tests because none are defined."
 
