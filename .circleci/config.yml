@@ -29,10 +29,3 @@ workflows:
     # Inside the workflow, you define the jobs you want to run.
     jobs:
       - say-hello
-      - build:
-          filters:
-            branches:
-              only:
-                - external-vector-store  
-version: 2.1
-
