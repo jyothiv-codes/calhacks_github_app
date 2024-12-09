@@ -2,3 +2,6 @@
 .venv
 old/
 logs/
+bundle/
+.chroma_env
+chillbert_app_ubuntu_creds.pem
