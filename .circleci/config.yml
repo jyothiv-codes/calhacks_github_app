@@ -33,7 +33,6 @@ workflows:
           filters:
             branches:
               only:
-                - external-vector-store  # Replace with your branch name
-
+                - external-vector-store  
 version: 2.1
 
