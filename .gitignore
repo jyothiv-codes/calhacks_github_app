@@ -1,2 +1,4 @@
 .env
 .venv
+chillbert_app_ubuntu_creds.pem
+.chroma_env
