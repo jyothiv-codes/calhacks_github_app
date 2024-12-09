@@ -1,3 +1,5 @@
 streamlit
 pyaudio
 python-dotenv
+boto3
+botocore
