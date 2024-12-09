@@ -1,0 +1,175 @@
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain.prompts import PromptTemplate
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_text_splitters import CharacterTextSplitter
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_retrieval_chain, LLMChain
+from langchain_chroma import Chroma
+from chromadb.config import Settings
+from dotenv import load_dotenv
+import chromadb
+import os
+# from datetime import datetime
+
+load_dotenv(override=True)
+
+CHROMA_HOST = os.getenv("CHROMA_HOST")
+CHROMA_PORT = os.getenv("CHROMA_PORT", 8000)
+CHROMA_CLIENT_AUTH_CREDENTIALS = os.getenv("CHROMA_CLIENT_AUTH_CREDENTIALS")
+CHROMA_AUTH_TOKEN_TRANSPORT_HEADER = os.getenv("CHROMA_AUTH_TOKEN_TRANSPORT_HEADER")
+
+class ChatBot:
+    #Load the models
+    def __init__(self, user):
+        self.llm = ChatGoogleGenerativeAI(model="gemini-pro")
+        self.embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+        print(f'{CHROMA_HOST=}')
+        print(f'{CHROMA_CLIENT_AUTH_CREDENTIALS=}')
+        print(f'{CHROMA_AUTH_TOKEN_TRANSPORT_HEADER=}')
+        self.chroma_client = chromadb.HttpClient(
+            host=CHROMA_HOST,
+            port=CHROMA_PORT,
+            settings=Settings(
+                chroma_client_auth_provider="chromadb.auth.token_authn.TokenAuthClientProvider",
+                chroma_auth_token_transport_header=CHROMA_AUTH_TOKEN_TRANSPORT_HEADER,
+                chroma_client_auth_credentials=CHROMA_CLIENT_AUTH_CREDENTIALS,
+            )
+        )
+        # self.chroma_client = HttpClient(host=CHROMA_HOST, port=CHROMA_PORT)
+        self.collection_name = user
+        self.collection = self.chroma_client.get_or_create_collection(self.collection_name)
+        print(self.chroma_client.heartbeat())
+        
+
+    def load_db(self, pdf_path=None):
+        # persist_directory = "./chroma_db"
+        #Load the PDF and create chunks
+        if pdf_path:
+
+            loader = PyPDFLoader(pdf_path)
+            text_splitter = CharacterTextSplitter(
+                separator="\n",
+                chunk_size=1000,
+                chunk_overlap=200,
+                length_function=len,
+                is_separator_regex=False,
+            )
+            pages = loader.load_and_split(text_splitter)
+
+            #Turn the chunks into embeddings and store them in Chroma
+            instance_vectordb = Chroma.from_documents(pages,self.embeddings)
+            instance_retriever = instance_vectordb.as_retriever(search_kwargs={"k": 5})
+
+            ## Insert to hosted Chroma
+            # collection = self.chroma_client.get_collection(self.collection_name)
+            # documents = [page.page_content for page in pages]
+            # metadatas = [{"source": pdf_path}] * len(documents)
+            # ids = [f"doc_{pdf_path}_{i}" for i in range(len(documents))]
+            # self.collection.add(documents=documents, metadatas=metadatas, ids=ids)
+
+            Chroma.from_documents(
+                documents=pages,
+                embedding=self.embeddings,
+                collection_name=self.collection_name,
+                client=self.chroma_client,
+            )
+
+            print('Written to ChromaDB')
+            return instance_retriever
+        
+
+        self.vectordb = Chroma(
+            collection_name=self.collection_name,
+            embedding_function=self.embeddings,
+            client=self.chroma_client,  # Connect to the external ChromaDB
+        )
+        #Configure current Chroma as a retriever
+        self.chroma_retriever = self.vectordb.as_retriever(search_kwargs={"k": 5})
+
+
+    def summarize(self, pdf_path):
+        summarize_template="""
+        You are a helpful AI assistant.
+        The provided context contains emotions of user in a conversation. Analyse the moods of the user and provide a detailed summary of it. Include moods of each message in the context and then describe how how the mood has changed from first to last message.
+        context: {context}
+        input: {input}
+        answer:
+        Mood of First message:
+        Mood of second message:
+        and so on for all the messages possible.
+        Summary of the change of moods over time:
+        """
+
+        instance_retriever = self.load_db(pdf_path)
+        retrieval_chain = self.create_chain(summarize_template, instance_retriever)
+        response = retrieval_chain.invoke({'input':'Can you analyse the mood and share how it has changed over time?'})
+        return response['answer']
+
+
+    def getlinks(self, summary=None):
+        if not summary:
+            summary = self.summarize()
+        template = """Based on the summary of the conversation:
+            {summary}
+            Please provide a few helpful website links from the web for the user to feel more engaged and involved. If any mental health issue is discussed include reliable documentation from the web"""
+        prompt = PromptTemplate(
+            input_variables=["summary"],
+            template=template,
+        )
+        chain = LLMChain(llm=self.llm, prompt=prompt)
+        # response = self.retrieval_chain.invoke({'input':'Can you provide some helpful links to uplift the user?'})
+        response = chain.run(summary=summary)
+        return response
+
+
+    def create_chain(self, template, retriever):
+        
+        prompt = PromptTemplate.from_template(template)
+        combine_docs_chain = create_stuff_documents_chain(self.llm, prompt)
+        retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
+        return retrieval_chain
+        # st.session_state['chain'] = self.retrieval_chain
+
+    def ask_anything_continuous(self):
+
+        self.load_db()
+        template = """
+        You are a helpful AI assistant.
+        The provided context contains emotions of user in a conversation. Analyse it to provide details.
+        context: {context}
+        input: {input}
+        answer:
+        """
+        retrieval_chain = self.create_chain(template, self.chroma_retriever)
+        while True:
+
+            i = input("Ask a question\n")
+            response= retrieval_chain.invoke({"input":i})
+            print(response["answer"])
+
+    def ask_anything(self, input):
+
+        self.load_db()
+        template = """
+            You are a helpful AI assistant.
+            The provided context contains emotions of user in a conversation. Analyse it to provide details.
+            context: {context}
+            input: {input}
+            answer:
+            """
+        retrieval_chain = self.create_chain(template, self.chroma_retriever)
+        # print(self.retrieval_chain)
+        response = retrieval_chain.invoke({'input':input})
+        return response['answer']
+    
+    def test_chroma(self):
+        # self.collection = self.chroma_client.get_collection(self.collection_name)
+        existing_ids = self.collection.count()
+        return existing_ids
+
+
+# cb = ChatBot('user1')
+# print(cb.summarize('logs/emotion_logs.pdf'))
+# print(cb.ask_anything('How are the users emotions?'))
+# print(cb.test_chroma())
