@@ -1,21 +1,22 @@
 version: 2.1
 
 jobs:
-  steps:
-    - checkout
-    - run:
-      name: Install dependencies
-      command: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - run:
-      name: Skip Tests (No tests defined yet)
-      command: echo "Skipping tests because none are defined."
-    - run:
-      name: Run linting
-      command: flake8 app.py
-    
-
+  build:  # Define the build job
+    docker:
+      - image: circleci/python:3.9  # Specify a Python Docker image
+    steps:
+      - checkout  # Check out the code from your repository
+      - run:
+          name: Install dependencies
+          command: |
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt
+      - run:
+          name: Skip Tests (No tests defined yet)
+          command: echo "Skipping tests because none are defined."
+      - run:
+          name: Run linting
+          command: flake8 app.py
 
 workflows:
   version: 2
@@ -25,4 +26,4 @@ workflows:
           filters:
             branches:
               only:
-                - << pipeline.git.branch >>
+                - << pipeline.git.branch >>  # Limit to the current branch
