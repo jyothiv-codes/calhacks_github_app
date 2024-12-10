@@ -20,3 +20,4 @@ fpdf
 streamlit
 boto3
 botocore
+flake8
