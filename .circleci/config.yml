@@ -1,13 +1,23 @@
 version: 2.1
 
 jobs:
-  build:  # Define the build job
+  build:
     docker:
-      - image: circleci/python:3.9  # Specify a Python Docker image
+      - image: circleci/python:3.9  # Use a Python Docker image
     steps:
-      - checkout  # Check out the code from your repository
+      - checkout
       - run:
-          name: Install dependencies
+          name: Install System Dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y \
+              libasound2-dev \
+              portaudio19-dev \
+              libportaudiocpp0 \
+              ffmpeg \
+              alsa-utils
+      - run:
+          name: Install Python Dependencies
           command: |
             python -m pip install --upgrade pip
             pip install -r requirements.txt
@@ -15,7 +25,7 @@ jobs:
           name: Skip Tests (No tests defined yet)
           command: echo "Skipping tests because none are defined."
       - run:
-          name: Run linting
+          name: Run Linting
           command: flake8 app.py
 
 workflows:
@@ -26,4 +36,4 @@ workflows:
           filters:
             branches:
               only:
-                - << pipeline.git.branch >>  # Limit to the current branch
+                - << pipeline.git.branch >>
